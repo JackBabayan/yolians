@@ -188,9 +188,14 @@ export function Product() {
             </button>
           )}
 
-          <div className="relative mt-6 overflow-hidden bg-[#eef6f3] px-6 py-8">
-            <div className="absolute -top-10 -left-8 h-40 w-48 rounded-full bg-accent/40 blur-3xl" />
-            <div className="absolute -right-8 -bottom-12 h-36 w-56 rounded-full bg-accent/25 blur-3xl" />
+          <div className="relative mt-6 overflow-hidden px-6 py-8">
+            <img
+              src={product.image}
+              alt=""
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+            />
+            <div className="absolute inset-0 bg-white/70" />
+            <div className="absolute inset-0 bg-accent/25" />
             <div className="relative">
               <h2 className="text-3xl italic tracking-tight">{tx("looking.for.a.custom.fit")}</h2>
               <p className="mt-3 max-w-[42ch] text-xl leading-relaxed text-muted">
