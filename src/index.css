@@ -63,6 +63,20 @@ body {
   }
 }
 
+@media (max-width: 63.999rem) {
+  input.control,
+  select.control {
+    height: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  select.control {
+    padding-right: 2.5rem;
+    background-position: right 1rem center;
+  }
+}
+
 @layer base {
   button,
   input,

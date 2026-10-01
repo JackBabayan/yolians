@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "motion/react"
 import { useEffect, type ReactNode } from "react"
+import { createPortal } from "react-dom"
 import { X } from "./icons"
 
 export function Modal({
@@ -28,9 +29,9 @@ export function Modal({
     }
   }, [onClose])
 
-  return (
+  return createPortal(
     <motion.div
-      className="fixed inset-0 z-50 flex overflow-y-auto bg-black/40 p-4"
+      className="fixed inset-0 z-[60] flex overflow-y-auto bg-black/40 p-4"
       initial={reduce ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -41,7 +42,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
-        className="relative m-auto w-full max-w-4xl rounded-3xl bg-white px-6 py-8 md:px-10 md:py-10"
+        className="relative m-auto w-full max-w-4xl rounded-3xl bg-white px-4 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10"
         initial={reduce ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         exit={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
@@ -58,6 +59,7 @@ export function Modal({
         </button>
         {children}
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   )
 }

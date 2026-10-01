@@ -120,7 +120,7 @@ export function Contact() {
             <p className="mb-2 max-w-[42ch] text-xl text-muted">
               {tx("we.usually.reply.within.a")}
             </p>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2">
               <TextField label={tx("full.name")} autoComplete="name" value={form.name} onChange={(event) => set("name", event.target.value)} />
               <TextField label="Email" type="email" autoComplete="email" value={form.email} onChange={(event) => set("email", event.target.value)} />
             </div>

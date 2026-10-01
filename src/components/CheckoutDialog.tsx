@@ -143,7 +143,7 @@ export function CheckoutDialog({
             {step === "ship" ? (
             <form
               onSubmit={submitShip}
-              className="mt-8 grid gap-5 sm:grid-cols-2"
+              className="mt-6 grid gap-4 md:grid-cols-2"
             >
               <TextField label={tx("first.name")} autoComplete="given-name" value={ship.first} onChange={(event) => setShipField("first", event.target.value)} />
               <TextField label={tx("last.name")} autoComplete="family-name" value={ship.last} onChange={(event) => setShipField("last", event.target.value)} />
@@ -162,8 +162,8 @@ export function CheckoutDialog({
               <TextField label={tx("city")} autoComplete="address-level2" value={ship.city} onChange={(event) => setShipField("city", event.target.value)} />
               <TextField label={tx("region")} autoComplete="address-level1" value={ship.region} onChange={(event) => setShipField("region", event.target.value)} />
               <TextField label={tx("note.if.any")} value={ship.note} onChange={(event) => setShipField("note", event.target.value)} />
-              {error ? <p className="text-xl text-[#8f2d2d] sm:col-span-2">{error}</p> : null}
-              <button type="submit" className="btn w-full sm:col-span-2">
+              {error ? <p className="text-base text-[#8f2d2d] md:col-span-2 lg:text-xl">{error}</p> : null}
+              <button type="submit" className="btn w-full md:col-span-2">
                 {tx("continue")}
               </button>
             </form>
@@ -218,10 +218,10 @@ export function CheckoutDialog({
                   </div>
                 </dl>
               </section>
-            <form onSubmit={submitPay} className="mt-8 grid gap-5 sm:grid-cols-2">
-              <div className="sm:col-span-2">
+            <form onSubmit={submitPay} className="mt-6 grid gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
                 <p>{tx("card.details")}</p>
-                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
                   {cardBrands.map(([id, label]) => (
                     <button
                       key={id}
@@ -262,8 +262,8 @@ export function CheckoutDialog({
                 value={card.cvc}
                 onChange={(event) => setCard((current) => ({ ...current, cvc: cardDigits(event.target.value).slice(0, 3) }))}
               />
-              {error ? <p className="text-xl text-[#8f2d2d] sm:col-span-2">{error}</p> : null}
-              <button type="submit" className="btn w-full sm:col-span-2">
+              {error ? <p className="text-base text-[#8f2d2d] md:col-span-2 lg:text-xl">{error}</p> : null}
+              <button type="submit" className="btn w-full md:col-span-2">
                 {tx("pay")} {money(due)}
               </button>
             </form>

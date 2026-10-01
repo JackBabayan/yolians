@@ -10,7 +10,7 @@ function Field({
   children: ReactNode
 }) {
   return (
-    <label className="flex flex-col gap-2 text-xl">
+    <label className="flex flex-col gap-1.5 text-base lg:gap-2 lg:text-xl">
       <span>{label}</span>
       {children}
       {error ? <span className="text-xl text-[#8f2d2d]">{error}</span> : null}

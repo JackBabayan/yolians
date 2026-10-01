@@ -22,7 +22,7 @@ export function Login() {
 
   return (
     <AuthShell title={tx("sign.in.2")}>
-      <form onSubmit={submit} className="flex flex-col gap-5">
+      <form onSubmit={submit} className="flex flex-col gap-4">
         <TextField label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
         <TextField label={tx("password")} type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
         {error ? <p className="text-xl text-[#8f2d2d]">{error}</p> : null}
@@ -67,7 +67,7 @@ export function Register() {
 
   return (
     <AuthShell title={tx("create.account.2")}>
-      <form onSubmit={submit} className="flex flex-col gap-5">
+      <form onSubmit={submit} className="flex flex-col gap-4">
         <TextField label={tx("first.name")} value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} />
         <TextField label={tx("last.name")} value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} />
         <TextField label="Email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />

@@ -220,12 +220,12 @@ function ProfileDialog({ onClose }: { onClose: () => void }) {
   return (
     <Modal labelledBy="profile-title" onClose={onClose} closeLabel={tx("close")}>
       <h2 id="profile-title" className="pr-10 text-3xl tracking-tight">{tx("personal.information")}</h2>
-      <form onSubmit={save} className="mt-8 grid gap-5 sm:grid-cols-2">
+      <form onSubmit={save} className="mt-6 grid gap-4 md:grid-cols-2">
         <TextField label={tx("first.name")} autoComplete="given-name" error={errors.firstName} value={form.firstName} onChange={(event) => setField("firstName", event.target.value)} />
         <TextField label={tx("last.name")} autoComplete="family-name" error={errors.lastName} value={form.lastName} onChange={(event) => setField("lastName", event.target.value)} />
         <TextField label={tx("email")} type="email" autoComplete="email" error={errors.email} value={form.email} onChange={(event) => setField("email", event.target.value)} />
         <TextField label={tx("phone")} autoComplete="tel" inputMode="tel" error={errors.phone} value={form.phone} onChange={(event) => setField("phone", event.target.value)} />
-        <button type="submit" className="btn w-full sm:col-span-2">{tx("save")}</button>
+        <button type="submit" className="btn w-full md:col-span-2">{tx("save")}</button>
       </form>
     </Modal>
   )
@@ -326,10 +326,10 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
           ))}
         </ul>
       )}
-      <form onSubmit={submit} className="mt-8 grid gap-5 sm:grid-cols-2">
-        <div className="sm:col-span-2">
+      <form onSubmit={submit} className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="md:col-span-2">
           <p>{tx("card.details")}</p>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
             {cardBrands.map(([id, label]) => (
               <button
                 key={id}
@@ -375,7 +375,7 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
           value={form.cvc}
           onChange={(event) => setField("cvc", cardDigits(event.target.value).slice(0, 3))}
         />
-        <button type="submit" className="btn w-full sm:col-span-2">{tx("save.card")}</button>
+        <button type="submit" className="btn w-full md:col-span-2">{tx("save.card")}</button>
       </form>
     </Modal>
   )
@@ -495,7 +495,7 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
           ))}
         </ul>
       )}
-      <form onSubmit={submit} className="mt-8 grid gap-5 sm:grid-cols-2">
+      <form onSubmit={submit} className="mt-6 grid gap-4 md:grid-cols-2">
         <SelectField label={tx("country")} autoComplete="country" error={errors.country} value={form.country} onChange={(event) => setField("country", event.target.value)}>
           <option value="">{tx("choose.a.country")}</option>
           {countriesBy(lang).map(({ code, name }) => (
@@ -508,7 +508,7 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
         <TextField label={tx("postal.code")} autoComplete="postal-code" error={errors.postal} value={form.postal} onChange={(event) => setField("postal", event.target.value)} />
         <TextField label={tx("city")} autoComplete="address-level2" error={errors.city} value={form.city} onChange={(event) => setField("city", event.target.value)} />
         <TextField label={tx("region")} autoComplete="address-level1" error={errors.region} value={form.region} onChange={(event) => setField("region", event.target.value)} />
-        <button type="submit" className="btn w-full sm:col-span-2">{tx("add.address")}</button>
+        <button type="submit" className="btn w-full md:col-span-2">{tx("add.address")}</button>
       </form>
     </Modal>
   )
