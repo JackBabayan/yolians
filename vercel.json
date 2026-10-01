@@ -1,0 +1,6 @@
+{
+  "installCommand": "npm install --prefix site",
+  "buildCommand": "npm run build --prefix site",
+  "outputDirectory": "site/dist",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
