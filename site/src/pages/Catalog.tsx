@@ -1,5 +1,7 @@
 import { Funnel, X } from "../components/icons"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useSearchParams } from "react-router-dom"
 import { ProductCard } from "../components/ProductCard"
 import {
@@ -47,6 +49,8 @@ export function Catalog() {
   const { lang, tx } = useStore()
   const [params, setParams] = useSearchParams()
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const reduce = useReducedMotion()
+  const slide = { duration: reduce ? 0.01 : 0.4, ease: [0.22, 1, 0.36, 1] as const }
   const filterKey = params.toString()
   const [view, setView] = useState({ filterKey, count: PAGE })
   if (view.filterKey !== filterKey) setView({ filterKey, count: PAGE })
@@ -70,6 +74,39 @@ export function Catalog() {
 
   const visible = filtered.slice(0, view.count)
   const sentinel = useRef<HTMLDivElement>(null)
+  const kindsRef = useRef<HTMLDivElement>(null)
+  const [kindsOverflow, setKindsOverflow] = useState(false)
+
+  useEffect(() => {
+    const node = kindsRef.current
+    if (!node) return
+    const update = () => {
+      const more = node.scrollLeft + node.clientWidth < node.scrollWidth - 4
+      setKindsOverflow((current) => (current === more ? current : more))
+    }
+    update()
+    node.addEventListener("scroll", update, { passive: true })
+    const observer = new ResizeObserver(update)
+    observer.observe(node)
+    return () => {
+      node.removeEventListener("scroll", update)
+      observer.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!filtersOpen) return
+    const previous = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFiltersOpen(false)
+    }
+    document.addEventListener("keydown", onKey)
+    return () => {
+      document.body.style.overflow = previous
+      document.removeEventListener("keydown", onKey)
+    }
+  }, [filtersOpen])
 
   useEffect(() => {
     const node = sentinel.current
@@ -127,24 +164,32 @@ export function Catalog() {
         </button>
       </div>
 
-      <div className="mt-12 overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex w-max gap-14 pb-8 md:gap-20">
-          {kinds.map((item) => {
-            const active = kind === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => toggle("kind", item.id)}
-                className={`flex w-36 shrink-0 flex-col items-center gap-5 ${active ? "text-ink" : "text-[#b5b5b5]"}`}
-              >
-                <img src={categoryDrawings[item.id]} alt="" className="h-24 w-full object-contain" />
-                <span className="text-[11px] tracking-[0.16em] uppercase">
-                  {tx(kindLabel[item.id])}
-                </span>
-              </button>
-            )
-          })}
+      <div className="relative mt-8">
+        <div
+          ref={kindsRef}
+          className="overflow-x-auto border-b border-line [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <div className="flex w-max gap-8 pb-5">
+            {kinds.map((item) => {
+              const active = kind === item.id
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => toggle("kind", item.id)}
+                  className={`flex w-24 shrink-0 flex-col items-center gap-3 ${active ? "text-ink" : "text-[#b5b5b5]"}`}
+                >
+                  <img src={categoryDrawings[item.id]} alt="" className="h-16 w-full object-contain" />
+                  <span className="text-[11px] tracking-[0.16em] uppercase">
+                    {tx(kindLabel[item.id])}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </div>
+        {kindsOverflow ? (
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white to-transparent" />
+        ) : null}
       </div>
 
       {visible.length === 0 ? (
@@ -165,37 +210,44 @@ export function Catalog() {
       )}
       <div ref={sentinel} className="h-8" />
 
-      {filtersOpen ? (
-        <>
-          <button
-            className="fixed inset-0 top-[var(--chrome)] z-30 bg-black/40"
-            aria-label={tx("close.filters")}
-            onClick={() => setFiltersOpen(false)}
-          />
-          <aside className="fixed top-[var(--chrome)] right-0 z-30 flex h-[calc(100dvh-var(--chrome))] w-[min(100%,320px)] flex-col overflow-y-auto bg-white px-8 py-10 text-ink">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl tracking-tight">{tx("filters")}</h2>
-              <button aria-label={tx("close.filters")} onClick={() => setFiltersOpen(false)}>
-                <X size={22} />
-              </button>
-            </div>
-            <div className="mt-8">
-              <FilterRow
-                gender={gender}
-                material={material}
-                color={color}
-                size={size}
-                onlyStock={onlyStock}
-                sizes={sizes}
-                lang={lang}
-                tx={tx}
-                toggle={toggle}
-                clear={clear}
-              />
-            </div>
-          </aside>
-        </>
-      ) : null}
+      {createPortal(
+        <AnimatePresence>
+          {filtersOpen ? (
+            <motion.div
+              key="filters"
+              role="dialog"
+              aria-modal="true"
+              aria-label={tx("filters")}
+              className="fixed inset-0 z-[60] overflow-y-auto bg-white px-4 py-8 text-ink md:px-8 md:py-12"
+              initial={reduce ? false : { x: "100%" }}
+              animate={{ x: 0 }}
+              exit={reduce ? { opacity: 0 } : { x: "100%" }}
+              transition={slide}
+            >
+              <div className="mx-auto flex w-full max-w-[1400px]  justify-end">
+                <button aria-label={tx("close.filters")} onClick={() => setFiltersOpen(false)}>
+                  <X size={22} />
+                </button>
+              </div>
+              <div className="mx-auto mt-8 w-full max-w-[1400px]">
+                <FilterRow
+                  gender={gender}
+                  material={material}
+                  color={color}
+                  size={size}
+                  onlyStock={onlyStock}
+                  sizes={sizes}
+                  lang={lang}
+                  tx={tx}
+                  toggle={toggle}
+                  clear={clear}
+                />
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   )
 }
