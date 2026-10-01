@@ -167,7 +167,7 @@ function dropPrimary<T extends { id: string; primary: boolean }>(items: T[], id:
 }
 
 const empty: State = {
-  lang: "ru",
+  lang: "en",
   cart: [],
   user: null,
   users: [],
@@ -190,7 +190,7 @@ function readState(): State {
         })
       : []
     return {
-      lang: languages.find((item) => item.id === parsed.lang)?.id ?? "ru",
+      lang: languages.find((item) => item.id === parsed.lang)?.id ?? "en",
       cart: clampCart(Array.isArray(parsed.cart) ? parsed.cart : []),
       user,
       users: user ? users.map((item) => (item.email === user.email ? user : item)) : users,

@@ -188,18 +188,27 @@ export function Product() {
             </button>
           )}
 
-          <div className="mt-6 border border-line p-5">
-            <p className="text-xl">{tx("looking.for.a.custom.fit")}</p>
-            <p className="mt-2 max-w-[42ch] text-xl leading-relaxed text-muted">
-              {tx("we.can.make.this.piece")}
-            </p>
-            <Link
-              to={`/tailoring?product=${product.id}`}
-              className="mt-4 inline-flex items-center gap-2 text-xl"
-            >
-              {tx("contact.for.custom.fit")}
-              <ArrowRight size={14} />
-            </Link>
+          <div className="relative mt-6 overflow-hidden px-6 py-8">
+            <img
+              src={product.image}
+              alt=""
+              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
+            />
+            <div className="absolute inset-0 bg-white/70" />
+            <div className="absolute inset-0 bg-accent/25" />
+            <div className="relative">
+              <h2 className="text-3xl italic tracking-tight">{tx("looking.for.a.custom.fit")}</h2>
+              <p className="mt-3 max-w-[42ch] text-xl leading-relaxed text-muted">
+                {tx("we.can.make.this.piece")}
+              </p>
+              <Link
+                to={`/tailoring?product=${product.id}`}
+                className="mt-4 inline-flex items-center gap-2 text-xl"
+              >
+                {tx("contact.for.custom.fit")}
+                <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
 
           <div className="mt-8 border-t border-line">
