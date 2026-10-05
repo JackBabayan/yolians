@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { Loader } from "./Loader"
 
 const holdMs = 800
 
@@ -56,7 +57,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
     <div id="preloader" className={leaving ? "preloader preloader-out" : "preloader"} aria-hidden="true">
       <div>
         <p>Yolians</p>
-        <span className="preloader-line" />
+        <Loader className="mt-5" />
       </div>
     </div>
   )

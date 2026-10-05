@@ -3,6 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { motion, useReducedMotion } from "motion/react"
 import { Reveal } from "../components/Reveal"
+import { useContent } from "../content"
 import { phrase, slideLabel } from "../i18n"
 import { useStore } from "../store"
 
@@ -111,21 +112,34 @@ const detailsLabel = phrase({ ru: "Детали", en: "Details" })
 
 export function About() {
   const { lang, tx } = useStore()
+  const about = useContent<{
+    storyTitle?: string
+    storyText?: string
+    craftsmanshipSteps?: { title: string; image: string; body: string }[]
+    editorialGallery?: { image: string; caption: string }[]
+  }>("/content/about")
+  const copy = about?.[lang] ?? about?.en
+  const story = copy?.craftsmanshipSteps?.length
+    ? copy.craftsmanshipSteps
+    : chapters.map((item) => ({ image: item.image, title: item.title[lang], body: item.body[lang] }))
+  const gallery = copy?.editorialGallery?.length
+    ? copy.editorialGallery
+    : portraits.map((item) => ({ image: item.image, caption: item.caption[lang] }))
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 md:px-8">
       <header className="grid h-[calc(100dvh-8rem)] min-h-0 grid-rows-[auto_minmax(0,1fr)] gap-6 pb-10 md:h-[calc(100dvh-10rem)] md:pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,0.92fr)] lg:grid-rows-1 lg:gap-10">
         <div className="flex h-full min-h-0 flex-col">
           <Mark />
-          <h1 className="mt-1 max-w-[10ch] text-4xl tracking-tight md:text-6xl lg:text-7xl">{tx("our.story")}</h1>
+          <h1 className="mt-1 max-w-[10ch] text-4xl tracking-tight md:text-6xl lg:text-7xl">{copy?.storyTitle || tx("our.story")}</h1>
           <p className="mt-4 max-w-[38ch] text-xl leading-relaxed text-muted">
-            {tx("yolians.makes.leather.pieces.in")}
+            {copy?.storyText || tx("yolians.makes.leather.pieces.in")}
           </p>
         </div>
-        <Portrait />
+        <Portrait slides={gallery} />
       </header>
 
-      <Story />
+      <Story chapters={story} />
 
       <section className="mt-16 md:mt-24" aria-label={detailsLabel[lang]}>
         <h2 className="text-3xl tracking-tight md:text-4xl">{detailsLabel[lang]}</h2>
@@ -195,24 +209,24 @@ function useSlide(length: number) {
     setIndex((current) => (current + delta + length) % length)
   }
 
-  return { index, setIndex, step, reduce }
+  return { index: length > 0 ? index % length : 0, setIndex, step, reduce }
 }
 
-function Portrait() {
+function Portrait({ slides }: { slides: { image: string; caption: string }[] }) {
   const { lang } = useStore()
-  const { index, setIndex, step, reduce } = useSlide(portraits.length)
-  const slide = portraits[index]
+  const { index, setIndex, step, reduce } = useSlide(slides.length)
+  const slide = slides[index]
 
   return (
-    <section className="flex h-full min-h-0 flex-col justify-start" aria-roledescription="carousel" aria-label={slide.caption[lang]}>
+    <section className="flex h-full min-h-0 flex-col justify-start" aria-roledescription="carousel" aria-label={slide?.caption ?? ""}>
       <div className="relative min-h-0 flex-1 overflow-hidden bg-white">
-        {portraits.map((item, itemIndex) => {
+        {slides.map((item, itemIndex) => {
           const active = itemIndex === index
           return (
             <img
               key={item.image}
               src={item.image}
-              alt={active ? item.caption[lang] : ""}
+              alt={active ? item.caption : ""}
               aria-hidden={!active}
               className={`absolute inset-0 h-full w-full object-contain object-top transition-opacity duration-700 motion-reduce:transition-none ${active ? "opacity-100" : "opacity-0"}`}
             />
@@ -226,7 +240,7 @@ function Portrait() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
       >
-        {slide.caption[lang]}
+        {slide?.caption}
       </motion.p>
       <div className="mt-3 flex shrink-0 items-center gap-3">
         <button
@@ -246,7 +260,7 @@ function Portrait() {
           <ArrowRight size={16} />
         </button>
         <div className="ml-auto flex items-center gap-2">
-          {portraits.map((item, itemIndex) => (
+          {slides.map((item, itemIndex) => (
             <button
               key={item.image}
               type="button"
@@ -282,22 +296,22 @@ function Frame({ frame }: { frame: (typeof frames)[number] }) {
   )
 }
 
-function Story() {
+function Story({ chapters: slides }: { chapters: { image: string; title: string; body: string }[] }) {
   const { lang } = useStore()
-  const { index, setIndex, step, reduce } = useSlide(chapters.length)
-  const chapter = chapters[index]
+  const { index, setIndex, step, reduce } = useSlide(slides.length)
+  const chapter = slides[index]
 
   return (
-    <section className="mt-16 md:mt-24" aria-roledescription="carousel" aria-label={chapter.title[lang]}>
+      <section className="mt-16 md:mt-24" aria-roledescription="carousel" aria-label={chapter?.title ?? ""}>
       <div className="grid overflow-hidden bg-[#f4f6f6] lg:grid-cols-[1.25fr_0.75fr]">
         <div className="relative min-h-[420px] md:min-h-[560px]">
-          {chapters.map((item, itemIndex) => {
+          {slides.map((item, itemIndex) => {
             const active = itemIndex === index
             return (
               <img
                 key={item.image}
                 src={item.image}
-                alt={active ? item.title[lang] : ""}
+                alt={active ? item.title : ""}
                 aria-hidden={!active}
                 className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 motion-reduce:transition-none ${active ? "opacity-100" : "opacity-0"}`}
               />
@@ -306,16 +320,16 @@ function Story() {
         </div>
         <div className="flex flex-col justify-between gap-8 p-6 md:p-10">
           <p className="text-sm tracking-[0.18em] text-muted uppercase">
-            {String(index + 1).padStart(2, "0")} / {String(chapters.length).padStart(2, "0")}
+            {String(index + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
           </p>
           <motion.div
-            key={chapter.title.en}
+            key={chapter?.title}
             initial={reduce ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
-            <h2 className="text-4xl tracking-tight md:text-5xl">{chapter.title[lang]}</h2>
-            <p className="mt-4 max-w-[34ch] text-xl leading-relaxed text-muted">{chapter.body[lang]}</p>
+            <h2 className="text-4xl tracking-tight md:text-5xl">{chapter?.title}</h2>
+            <p className="mt-4 max-w-[34ch] text-xl leading-relaxed text-muted">{chapter?.body}</p>
           </motion.div>
           <div>
             <div className="mb-5 h-px bg-line">
@@ -339,9 +353,9 @@ function Story() {
                 <ArrowRight size={16} />
               </button>
               <div className="ml-auto flex items-center gap-2">
-                {chapters.map((item, itemIndex) => (
+                {slides.map((item, itemIndex) => (
                   <button
-                    key={item.title.en}
+                    key={item.title}
                     type="button"
                     aria-label={slideLabel(itemIndex + 1, lang)}
                     aria-current={itemIndex === index ? "true" : undefined}

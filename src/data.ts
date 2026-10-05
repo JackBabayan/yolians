@@ -1,11 +1,17 @@
+import { getProducts, useProducts } from "./catalog"
 import { messages, phrase, type Lang, type Phrase } from "./i18n"
-import { kinds, products } from "./mock/catalog"
+import { kinds } from "./mock/catalog"
 
 export type { Lang }
-export type Gender = "women" | "men"
+export type Gender = "women" | "men" | "unisex"
 export type Kind = "jackets" | "sneakers" | "bags" | "belts"
-export type Material = "leather"
 export type ColorId = "black" | "cognac" | "white" | "emerald"
+
+export type ProductColor = {
+  id: string
+  name: Record<Lang, string>
+  hex: string
+}
 
 export type Product = {
   id: string
@@ -13,38 +19,25 @@ export type Product = {
   price: number
   shipping: number
   gender: Gender
-  kind: Kind
-  material: Material
-  color: ColorId
+  category: Kind
+  material: string
+  color: ProductColor
   sizes: string[]
   stock: Record<string, number>
+  inStock: boolean
   image: string
   images?: string[]
   note: Record<Lang, string>
 }
 
-export { kinds, products }
-
-export const colorName: Record<ColorId, Phrase> = {
-  black: phrase({ ru: "Чёрный", en: "Black" }),
-  cognac: phrase({ ru: "Коньяк", en: "Cognac" }),
-  white: phrase({ ru: "Белый", en: "White" }),
-  emerald: phrase({ ru: "Изумруд", en: "Emerald" }),
-}
-
-export const colorHex: Record<ColorId, string> = {
-  black: "#14181c",
-  cognac: "#8a4b2f",
-  white: "#ffffff",
-  emerald: "#0c6b56",
-}
+export { kinds, useProducts }
 
 export function productById(id: string) {
-  return products.find((item) => item.id === id)
+  return getProducts().find((item) => item.id === id)
 }
 
 export function inStock(product: Product) {
-  return Object.values(product.stock).some((qty) => qty > 0)
+  return product.inStock
 }
 
 export function money(value: number) {

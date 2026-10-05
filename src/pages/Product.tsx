@@ -2,7 +2,7 @@ import { ArrowLeft, ArrowRight, CaretDown, Minus, Plus } from "../components/ico
 import { useEffect, useRef, useState, type PointerEvent, type ReactNode } from "react"
 import { Link, useParams } from "react-router-dom"
 import { ProductRail } from "../components/ProductRail"
-import { colorHex, colorName, formatShipping, inStock, money, productById, products, type Kind } from "../data"
+import { formatShipping, inStock, money, productById, useProducts, type Kind } from "../data"
 import type { MessageKey } from "../i18n"
 import { useStore } from "../store"
 
@@ -28,6 +28,7 @@ const shoes = [
 
 export function Product() {
   const { id } = useParams()
+  const products = useProducts()
   const product = productById(id ?? "")
   const { lang, tx, cart, addToCart } = useStore()
   const [picked, setPicked] = useState({ id: id ?? "", size: null as string | null, qty: 1 })
@@ -54,14 +55,14 @@ export function Product() {
   const madeToOrder = soldOut || (size !== null && selectedQty === 0)
   const byColor = new Map(
     products
-      .filter((item) => item.kind === product.kind && item.gender === product.gender)
-      .map((item) => [item.color, item] as const),
+      .filter((item) => item.category === product.category && item.gender === product.gender)
+      .map((item) => [item.color.id, item] as const),
   )
-  byColor.set(product.color, product)
+  byColor.set(product.color.id, product)
   const siblings = [...byColor.values()]
   const outfit = [
-    ...products.filter((item) => item.id !== product.id && item.kind !== product.kind),
-    ...products.filter((item) => item.id !== product.id && item.kind === product.kind),
+    ...products.filter((item) => item.id !== product.id && item.category !== product.category),
+    ...products.filter((item) => item.id !== product.id && item.category === product.category),
   ].slice(0, 4)
 
   function add() {
@@ -122,12 +123,12 @@ export function Product() {
           <p className="mt-8 text-xl tracking-[0.14em] uppercase">{tx("colour")}</p>
           <div className="mt-3 flex flex-wrap gap-4">
             {siblings.map((item) => {
-              const label = colorName[item.color][lang]
+              const label = item.color.name[lang]
               const dot = (
                 <span
                   style={{
-                    background: colorHex[item.color],
-                    boxShadow: item.color === "white" ? "inset 0 0 0 1px #e4e8ea" : undefined,
+                    background: item.color.hex,
+                    boxShadow: item.color.id === "white" ? "inset 0 0 0 1px #e4e8ea" : undefined,
                   }}
                 />
               )
@@ -213,7 +214,7 @@ export function Product() {
 
           <div className="mt-8 border-t border-line">
             <Fold title={tx("size.chart")}>
-              <SizeChart kind={product.kind} sizes={product.sizes} tx={tx} />
+              <SizeChart kind={product.category} sizes={product.sizes} tx={tx} />
               <Link to="/size-guide" className="mt-4 inline-flex text-xl text-accent">
                 {tx("full.size.guide")}
               </Link>
@@ -225,7 +226,7 @@ export function Product() {
             </Fold>
             <Fold title={tx("materials")}>
               <p>
-                {tx("leather.2")} {colorName[product.color][lang]}.
+                {tx("leather.2")} {product.color.name[lang]}.
               </p>
             </Fold>
             <Fold title={tx("shipping.and.returns")}>

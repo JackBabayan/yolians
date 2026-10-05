@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { CheckoutDialog } from "../components/CheckoutDialog"
 import { ProductRail } from "../components/ProductRail"
-import { colorName, formatShipping, money, productById, products } from "../data"
+import { formatShipping, money, productById, useProducts } from "../data"
 import { bagLine } from "../i18n"
 import { useStore, type CartLine } from "../store"
 
@@ -14,6 +14,7 @@ function lineId(line: CartLine) {
 
 export function Cart() {
   const { lang, tx, cart, setQty, removeLine } = useStore()
+  const products = useProducts()
   const [off, setOff] = useState<string[]>([])
   const [error, setError] = useState("")
   const [checkout, setCheckout] = useState<{ lines: CartLine[] } | null>(null)
@@ -25,10 +26,10 @@ export function Cart() {
   const shipping = chosen.reduce((sum, item) => sum + item.product!.shipping * item.line.qty, 0)
   const count = lines.reduce((sum, item) => sum + item.line.qty, 0)
   const inCart = new Set(lines.map((item) => item.line.productId))
-  const kindsInCart = new Set(lines.map((item) => item.product!.kind))
+  const kindsInCart = new Set(lines.map((item) => item.product!.category))
   const suggestions = [
-    ...products.filter((item) => !inCart.has(item.id) && !kindsInCart.has(item.kind)),
-    ...products.filter((item) => !inCart.has(item.id) && kindsInCart.has(item.kind)),
+    ...products.filter((item) => !inCart.has(item.id) && !kindsInCart.has(item.category)),
+    ...products.filter((item) => !inCart.has(item.id) && kindsInCart.has(item.category)),
   ].slice(0, 4)
 
   function toggle(line: CartLine) {
@@ -96,7 +97,7 @@ export function Cart() {
               <ul>
                 {lines.map(({ line, product }) => {
                   const on = !off.includes(lineId(line))
-                  const color = colorName[product!.color][lang]
+                  const color = product!.color.name[lang]
                   const remove = (
                     <button
                       type="button"

@@ -2,10 +2,11 @@ import { type FormEvent, type ReactNode, useState } from "react"
 import { AnimatePresence } from "motion/react"
 import { Link } from "react-router-dom"
 import { SelectField, TextField } from "../components/form"
+import { Loader } from "../components/Loader"
 import { CardLogo } from "../components/icons"
 import { Modal } from "../components/Modal"
 import { ProductRail } from "../components/ProductRail"
-import { countries, countriesBy, money, productById, products, type Lang } from "../data"
+import { countries, countriesBy, money, productById, useProducts, type Lang } from "../data"
 import { bagLine } from "../i18n"
 import { useStore, type SavedAddress, type SavedCard } from "../store"
 
@@ -46,6 +47,7 @@ function brandName(brand: string) {
 
 export function Account() {
   const { lang, tx, user, logout, orders, cart } = useStore()
+  const products = useProducts()
   const count = cart.reduce((sum, line) => sum + line.qty, 0)
   const picks = products.slice(0, 4)
 
@@ -191,13 +193,14 @@ function ProfileDialog({ onClose }: { onClose: () => void }) {
     phone: user?.phone ?? "",
   })
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
+  const [busy, setBusy] = useState(false)
 
   function setField(key: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  function save(event: FormEvent) {
+  async function save(event: FormEvent) {
     event.preventDefault()
     const next = {
       firstName: form.firstName.trim() ? undefined : tx("enter.first.name"),
@@ -209,7 +212,9 @@ function ProfileDialog({ onClose }: { onClose: () => void }) {
       setErrors(next)
       return
     }
-    const message = updateProfile(form)
+    setBusy(true)
+    const message = await updateProfile(form)
+    setBusy(false)
     if (message) {
       setErrors({ email: message })
       return
@@ -225,7 +230,8 @@ function ProfileDialog({ onClose }: { onClose: () => void }) {
         <TextField label={tx("last.name")} autoComplete="family-name" error={errors.lastName} value={form.lastName} onChange={(event) => setField("lastName", event.target.value)} />
         <TextField label={tx("email")} type="email" autoComplete="email" error={errors.email} value={form.email} onChange={(event) => setField("email", event.target.value)} />
         <TextField label={tx("phone")} autoComplete="tel" inputMode="tel" error={errors.phone} value={form.phone} onChange={(event) => setField("phone", event.target.value)} />
-        <button type="submit" className="btn w-full md:col-span-2">{tx("save")}</button>
+        {busy ? <Loader label={tx("loading")} className="md:col-span-2" /> : null}
+        <button type="submit" className="btn w-full md:col-span-2" disabled={busy}>{tx("save")}</button>
       </form>
     </Modal>
   )
@@ -274,13 +280,14 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
   const { tx, cards, addCard, removeCard, setPrimaryCard } = useStore()
   const [form, setForm] = useState({ brand: "" as "" | CardBrand, number: "", expiry: "", cvc: "", name: "" })
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
+  const [busy, setBusy] = useState(false)
 
   function setField(key: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault()
     const next = {
       brand: form.brand ? undefined : tx("choose.a.card"),
@@ -293,7 +300,18 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
       setErrors(next)
       return
     }
-    addCard({ brand: form.brand, last4: cardDigits(form.number).slice(-4), expiry: form.expiry, name: form.name.trim() })
+    setBusy(true)
+    const message = await addCard({
+      brand: form.brand,
+      last4: cardDigits(form.number).slice(-4),
+      expiry: form.expiry,
+      name: form.name.trim(),
+    })
+    setBusy(false)
+    if (message) {
+      setErrors({ number: message })
+      return
+    }
     setForm({ brand: "", number: "", expiry: "", cvc: "", name: "" })
     setErrors({})
   }
@@ -375,7 +393,8 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
           value={form.cvc}
           onChange={(event) => setField("cvc", cardDigits(event.target.value).slice(0, 3))}
         />
-        <button type="submit" className="btn w-full md:col-span-2">{tx("save.card")}</button>
+        {busy ? <Loader label={tx("loading")} className="md:col-span-2" /> : null}
+        <button type="submit" className="btn w-full md:col-span-2" disabled={busy}>{tx("save.card")}</button>
       </form>
     </Modal>
   )
@@ -433,13 +452,15 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
   const addresses = user?.addresses ?? []
   const [form, setForm] = useState(emptyAddress)
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
+  const [formError, setFormError] = useState("")
+  const [busy, setBusy] = useState(false)
 
   function setField(key: keyof typeof form, value: string) {
     setForm((current) => ({ ...current, [key]: value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault()
     const next = {
       country: form.country ? undefined : tx("choose.a.country"),
@@ -453,7 +474,8 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
       setErrors(next)
       return
     }
-    addAddress({
+    setBusy(true)
+    const message = await addAddress({
       country: form.country,
       street: form.street.trim(),
       apartment: form.apartment.trim(),
@@ -462,8 +484,14 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
       region: form.region.trim(),
       phone: form.phone.trim(),
     })
+    setBusy(false)
+    if (message) {
+      setFormError(message)
+      return
+    }
     setForm(emptyAddress)
     setErrors({})
+    setFormError("")
   }
 
   return (
@@ -508,7 +536,9 @@ function AddressDialog({ onClose }: { onClose: () => void }) {
         <TextField label={tx("postal.code")} autoComplete="postal-code" error={errors.postal} value={form.postal} onChange={(event) => setField("postal", event.target.value)} />
         <TextField label={tx("city")} autoComplete="address-level2" error={errors.city} value={form.city} onChange={(event) => setField("city", event.target.value)} />
         <TextField label={tx("region")} autoComplete="address-level1" error={errors.region} value={form.region} onChange={(event) => setField("region", event.target.value)} />
-        <button type="submit" className="btn w-full md:col-span-2">{tx("add.address")}</button>
+        {formError ? <p className="text-base text-[#8f2d2d] md:col-span-2 lg:text-xl">{formError}</p> : null}
+        {busy ? <Loader label={tx("loading")} className="md:col-span-2" /> : null}
+        <button type="submit" className="btn w-full md:col-span-2" disabled={busy}>{tx("add.address")}</button>
       </form>
     </Modal>
   )

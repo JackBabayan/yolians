@@ -1,8 +1,13 @@
-import { products } from "../data"
+import { useContent } from "../content"
+import { useProducts } from "../data"
 import { useStore } from "../store"
 
-const belts = products.find((product) => product.kind === "belts")?.sizes ?? []
-const bags = products.filter((product) => product.kind === "bags")
+type SizeCopy = {
+  title?: string
+  intro?: string
+  footwearSizes?: { eu: string; us: string; cm: string; uk?: string }[]
+  beltSizes?: { size: string; waistCm: string }[]
+}
 
 const shoes = [
   ["36", "6", "3.5", "23"],
@@ -18,25 +23,36 @@ const shoes = [
 
 export function SizeGuide() {
   const { tx, lang } = useStore()
+  const products = useProducts()
+  const guide = useContent<SizeCopy>("/content/size-guide")
+  const copy = guide?.[lang] ?? guide?.en
+  const belts = products.find((product) => product.category === "belts")?.sizes ?? []
+  const bags = products.filter((product) => product.category === "bags")
+  const footwear = copy?.footwearSizes?.length
+    ? copy.footwearSizes
+    : shoes.map(([eu, us, uk, cm]) => ({ eu, us, uk, cm }))
+  const beltRows = copy?.beltSizes?.length
+    ? copy.beltSizes
+    : belts.map((size) => ({ size, waistCm: `${size} cm` }))
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 py-12 md:px-8">
       <h1 className="text-4xl tracking-tight md:text-5xl">
-        {tx("nav.size")}
+        {copy?.title || tx("nav.size")}
       </h1>
       <p className="mt-4 max-w-[46ch] text-muted">
-        {tx("shoes.belts.and.bags.are")}
+        {copy?.intro || tx("shoes.belts.and.bags.are")}
       </p>
 
       <section className="mt-12">
         <h2 className="text-2xl tracking-tight">{tx("footwear")}</h2>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-          {shoes.map(([eu, us, uk, cm]) => (
-            <div key={eu} className="border border-line p-4">
-              <p className="text-2xl tracking-tight">EU {eu}</p>
-              <p className="mt-3 text-xl text-muted">US {us}</p>
-              <p className="text-xl text-muted">UK {uk}</p>
-              <p className="text-xl text-muted">{cm} cm</p>
+          {footwear.map((row) => (
+            <div key={row.eu} className="border border-line p-4">
+              <p className="text-2xl tracking-tight">EU {row.eu}</p>
+              <p className="mt-3 text-xl text-muted">US {row.us}</p>
+              {row.uk ? <p className="text-xl text-muted">UK {row.uk}</p> : null}
+              <p className="text-xl text-muted">{row.cm} cm</p>
             </div>
           ))}
         </div>
@@ -48,10 +64,10 @@ export function SizeGuide() {
           {tx("the.belt.size.is.the")}
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-          {belts.map((size) => (
-            <div key={size} className="bg-[#f4f6f6] p-4">
-              <p className="text-2xl tracking-tight">{size}</p>
-              <p className="mt-3 text-xl text-muted">{tx("waist")} {size} cm</p>
+          {beltRows.map((row) => (
+            <div key={row.size} className="bg-[#f4f6f6] p-4">
+              <p className="text-2xl tracking-tight">{row.size}</p>
+              <p className="mt-3 text-xl text-muted">{tx("waist")} {row.waistCm}</p>
             </div>
           ))}
         </div>

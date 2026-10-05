@@ -1,7 +1,8 @@
 import { ArrowRight } from "../components/icons"
 import { type FormEvent, useState } from "react"
 import { Link } from "react-router-dom"
-import { products, type Gender } from "../data"
+import { useContent } from "../content"
+import { useProducts, type Gender } from "../data"
 import { Hero, type HeroSlide } from "../components/Hero"
 import { ProductCard } from "../components/ProductCard"
 import { Reveal } from "../components/Reveal"
@@ -14,7 +15,12 @@ const heroSlides: HeroSlide[] = [
 ]
 
 export function Home() {
-  const { tx } = useStore()
+  const { tx, lang } = useStore()
+  const products = useProducts()
+  const home = useContent<{
+    hero?: { headline?: string; subheadline?: string; buttonText?: string; buttonLink?: string }
+  }>("/content/home")
+  const hero = home?.[lang]?.hero ?? home?.en?.hero
   const [gender, setGender] = useState<Gender | "all">("all")
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
@@ -33,16 +39,20 @@ export function Home() {
         {(dots) => (
           <>
             <h1 className="max-w-[11ch] text-4xl leading-[1.05] font-medium tracking-tighter md:text-6xl">
-              {tx("leather")}
-              <br />
-              {tx("cut.for.you")}
+              {hero?.headline || (
+                <>
+                  {tx("leather")}
+                  <br />
+                  {tx("cut.for.you")}
+                </>
+              )}
             </h1>
             <p className="mt-4 max-w-[36ch] text-xl text-white/90">
-              {tx("jackets.sneakers.bags.and.belts")}
+              {hero?.subheadline || tx("jackets.sneakers.bags.and.belts")}
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <Link to="/catalog" className="btn">
-                {tx("shop")}
+              <Link to={hero?.buttonLink || "/catalog"} className="btn">
+                {hero?.buttonText || tx("shop")}
               </Link>
               <Link to="/tailoring" className="btn btn-on-dark">
                 {tx("tailoring")}

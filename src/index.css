@@ -224,6 +224,15 @@ img {
     border-radius: 999px;
   }
 
+  .kind-icon {
+    display: block;
+    width: 100%;
+    height: 4rem;
+    background-color: currentColor;
+    -webkit-mask: var(--kind) center / contain no-repeat;
+    mask: var(--kind) center / contain no-repeat;
+  }
+
   textarea.control {
     height: auto;
     border-radius: 1rem;
@@ -280,22 +289,83 @@ img {
   text-transform: uppercase;
 }
 
-.preloader-line {
-  display: block;
-  width: 2.5rem;
-  height: 1px;
-  margin: 0.9rem auto 0;
-  background: var(--color-accent);
-  transform-origin: center;
-  animation: preloader-line 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+.loader {
+  display: grid;
+  place-items: center;
 }
 
-@keyframes preloader-line {
-  from {
-    transform: scaleX(0);
-  }
+.loader-track {
+  display: block;
+  width: 10rem;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+}
+
+.loader-fill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-accent);
+  transform-origin: left center;
+  animation: loader-fill 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.title-out,
+.title-in {
+  display: inline-block;
+}
+
+.title-out {
+  animation: title-out 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.title-in {
+  animation: title-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes title-out {
   to {
+    opacity: 0;
+    transform: translateY(-0.35em);
+  }
+}
+
+@keyframes title-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+
+.count-dots span {
+  opacity: 0;
+  animation: count-dot 1.15s ease-in-out infinite;
+}
+
+@keyframes count-dot {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  35%,
+  55% {
+    opacity: 1;
+  }
+}
+
+@keyframes loader-fill {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  68% {
     transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1);
+    opacity: 0;
   }
 }
 
@@ -418,7 +488,7 @@ video::-webkit-media-controls-start-playback-button {
 }
 
 .ticker-track {
-  animation: ticker 36s linear infinite;
+  animation: ticker 72s linear infinite;
 }
 
 @keyframes ticker {
@@ -439,11 +509,18 @@ video::-webkit-media-controls-start-playback-button {
   .reveal,
   .page-enter,
   .preloader,
-  .preloader-line,
+  .loader-fill,
+  .count-dots span,
+  .title-out,
+  .title-in,
   .ticker-track,
   .checkout-step,
   .story-progress {
     animation: none;
     transition: none;
+  }
+
+  .count-dots span {
+    opacity: 1;
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
 import { useLocation } from "react-router-dom"
+import { loadProducts } from "../catalog"
 import { Footer } from "./Footer"
 import { Header } from "./Header"
 import { Preloader } from "./Preloader"
@@ -7,6 +8,10 @@ import { Preloader } from "./Preloader"
 export function Layout({ children }: { children: ReactNode }) {
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    loadProducts()
+  }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)

@@ -1,8 +1,12 @@
 import { FacebookLogo, InstagramLogo, TelegramLogo, YoutubeLogo } from "../components/icons"
-import { useEffect, useState } from "react"
+import { type FormEvent, useEffect, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
+import { api } from "../api"
 import { Hero, type HeroSlide } from "../components/Hero"
-import { productById } from "../data"
+import { TextAreaField, TextField } from "../components/form"
+import { Loader } from "../components/Loader"
+import { useContent } from "../content"
+import { productById, useProducts } from "../data"
 import { phrase } from "../i18n"
 import { useStore } from "../store"
 
@@ -64,11 +68,37 @@ const messengers = [
   { href: "https://youtube.com/@yolians", label: "YouTube", icon: YoutubeLogo },
 ]
 
+type TailoringCopy = {
+  heroHeadline?: string
+  heroSubheadline?: string
+  journeySteps?: { stepNumber: string; title: string; body: string }[]
+  contactMethods?: { value: string; href: string; label: string; action: string }[]
+}
+
 export function Tailoring() {
   const { lang, tx } = useStore()
+  useProducts()
+  const content = useContent<TailoringCopy>("/content/tailoring")
+  const page = content?.[lang] ?? content?.en
   const [params] = useSearchParams()
   const product = productById(params.get("product") ?? "")
   const [messengersOpen, setMessengersOpen] = useState(false)
+  const [inquiry, setInquiry] = useState({ name: "", email: "", phone: "", notes: "" })
+  const [sent, setSent] = useState(false)
+  const [inquiryError, setInquiryError] = useState("")
+  const [busy, setBusy] = useState(false)
+  const journey = page?.journeySteps?.length
+    ? page.journeySteps.map((step) => ({ n: step.stepNumber, title: step.title, body: step.body }))
+    : steps.map((step) => ({ n: step.n, title: step.title[lang], body: step.body[lang] }))
+  const lines = page?.contactMethods?.length
+    ? page.contactMethods
+    : contacts.map((item) => ({
+        value: item.value,
+        href: item.href,
+        label: item.label[lang],
+        action: item.action[lang],
+        external: "external" in item,
+      }))
 
   useEffect(() => {
     if (!messengersOpen) return
@@ -78,6 +108,35 @@ export function Tailoring() {
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
   }, [messengersOpen])
+
+  async function submitInquiry(event: FormEvent) {
+    event.preventDefault()
+    if (!inquiry.name.trim() || !inquiry.email.trim() || !inquiry.phone.trim()) {
+      setInquiryError(tx("fill.in.name.email.and"))
+      return
+    }
+    setBusy(true)
+    try {
+      await api("/tailoring/inquiries", {
+        method: "POST",
+        auth: false,
+        body: {
+          name: inquiry.name.trim(),
+          email: inquiry.email.trim(),
+          phone: inquiry.phone.trim(),
+          notes: [product ? `${tx("for.this.piece")}: ${product.name[lang]}` : "", inquiry.notes.trim()]
+            .filter(Boolean)
+            .join("\n"),
+        },
+      })
+      setSent(true)
+      setInquiryError("")
+    } catch (error) {
+      setInquiryError(error instanceof Error ? error.message : tx("fill.in.name.email.and"))
+    } finally {
+      setBusy(false)
+    }
+  }
 
   return (
     <div>
@@ -90,10 +149,10 @@ export function Tailoring() {
           <>
           <div>
             <h1 className="text-5xl tracking-tight md:text-7xl">
-              {tx("nav.tailoring")}
+              {page?.heroHeadline || tx("nav.tailoring")}
             </h1>
             <p className="mx-auto mt-5 max-w-[42ch] text-xl leading-relaxed">
-              {tx("we.make.the.piece.to")}
+              {page?.heroSubheadline || tx("we.make.the.piece.to")}
             </p>
             {product ? (
               <p className="mt-4 text-xl">
@@ -142,11 +201,11 @@ export function Tailoring() {
           {tx("the.tailoring.journey")}
         </h2>
         <ol className="mt-12 grid gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
-          {steps.map((step) => (
+          {journey.map((step) => (
             <li key={step.n} className="bg-white p-8">
               <p className="text-xl text-accent">{step.n}</p>
-              <h3 className="mt-6 text-3xl tracking-tight">{step.title[lang]}</h3>
-              <p className="mt-3 leading-relaxed text-muted">{step.body[lang]}</p>
+              <h3 className="mt-6 text-3xl tracking-tight">{step.title}</h3>
+              <p className="mt-3 leading-relaxed text-muted">{step.body}</p>
             </li>
           ))}
         </ol>
@@ -161,18 +220,28 @@ export function Tailoring() {
             <p className="mt-6 max-w-[38ch] leading-relaxed text-muted">
               {tx("whether.you.wish.to.start")}
             </p>
-            <Link to="/contact" className="btn mt-8">
-              {tx("contact.us")}
-            </Link>
+            {sent ? (
+              <p className="mt-8 text-xl">{tx("thank.you.we.will.write")}</p>
+            ) : (
+              <form onSubmit={submitInquiry} className="mt-8 flex flex-col gap-4">
+                <TextField label={tx("full.name")} value={inquiry.name} onChange={(event) => setInquiry({ ...inquiry, name: event.target.value })} />
+                <TextField label="Email" type="email" value={inquiry.email} onChange={(event) => setInquiry({ ...inquiry, email: event.target.value })} />
+                <TextField label={tx("phone")} inputMode="tel" value={inquiry.phone} onChange={(event) => setInquiry({ ...inquiry, phone: event.target.value })} />
+                <TextAreaField label={tx("message")} value={inquiry.notes} onChange={(event) => setInquiry({ ...inquiry, notes: event.target.value })} />
+                {inquiryError ? <p className="text-xl text-[#8f2d2d]">{inquiryError}</p> : null}
+                {busy ? <Loader label={tx("loading")} /> : null}
+                <button type="submit" className="btn" disabled={busy}>{tx("contact.us")}</button>
+              </form>
+            )}
           </div>
           <ul className="border-t border-line">
-            {contacts.map((item) => (
+            {lines.map((item) => (
               <li key={item.href} className="flex flex-col gap-4 border-b border-line py-6 sm:flex-row sm:items-center sm:justify-between sm:py-7">
                 <div>
-                  <p className="text-sm tracking-[0.14em] text-muted uppercase">{item.label[lang]}</p>
+                  <p className="text-sm tracking-[0.14em] text-muted uppercase">{item.label}</p>
                   <a
                     href={item.href}
-                    {...("external" in item ? { target: "_blank", rel: "noreferrer" } : {})}
+                    {...(item.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
                     className="mt-2 inline-block text-xl font-medium"
                   >
                     {item.value}
@@ -180,10 +249,10 @@ export function Tailoring() {
                 </div>
                 <a
                   href={item.href}
-                  {...("external" in item ? { target: "_blank", rel: "noreferrer" } : {})}
+                  {...(item.href.startsWith("http") ? { target: "_blank", rel: "noreferrer" } : {})}
                   className="inline-flex h-12 min-w-40 items-center justify-center border border-accent px-6 text-base text-accent"
                 >
-                  {item.action[lang]}
+                  {item.action}
                 </a>
               </li>
             ))}

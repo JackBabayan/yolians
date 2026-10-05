@@ -20,9 +20,9 @@ export function Footer() {
           <ul className="mt-4 space-y-2 text-xl text-muted">
             <li><Link to="/catalog?gender=women">{tx("nav.women")}</Link></li>
             <li><Link to="/catalog?gender=men">{tx("nav.men")}</Link></li>
-            <li><Link to="/catalog?kind=sneakers">{tx("kind.sneakers")}</Link></li>
-            <li><Link to="/catalog?kind=bags">{tx("nav.bags")}</Link></li>
-            <li><Link to="/catalog?kind=belts">{tx("kind.belts")}</Link></li>
+            <li><Link to="/catalog?category=sneakers">{tx("kind.sneakers")}</Link></li>
+            <li><Link to="/catalog?category=bags">{tx("nav.bags")}</Link></li>
+            <li><Link to="/catalog?category=belts">{tx("kind.belts")}</Link></li>
           </ul>
         </div>
         <div>

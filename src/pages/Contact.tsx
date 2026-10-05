@@ -2,6 +2,7 @@ import { type FormEvent, useState } from "react"
 import { FacebookLogo, InstagramLogo, TelegramLogo, YoutubeLogo } from "../components/icons"
 import { Link } from "react-router-dom"
 import { TextAreaField, TextField } from "../components/form"
+import { useContent } from "../content"
 import { useStore } from "../store"
 
 const social = [
@@ -12,7 +13,14 @@ const social = [
 ]
 
 export function Contact() {
-  const { tx } = useStore()
+  const { tx, lang } = useStore()
+  const settings = useContent<{
+    primaryPhone?: string
+    contactEmail?: string
+    atelierAddress?: string
+    businessHours?: string
+  }>("/content/settings")
+  const studio = settings?.[lang] ?? settings?.en
   const [sent, setSent] = useState(false)
   const [error, setError] = useState("")
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" })
@@ -20,21 +28,21 @@ export function Contact() {
   const details = [
     {
       label: tx("email"),
-      value: "hello@yolians.com",
-      href: "mailto:hello@yolians.com",
+      value: studio?.contactEmail || "hello@yolians.com",
+      href: `mailto:${studio?.contactEmail || "hello@yolians.com"}`,
     },
     {
       label: tx("phone"),
-      value: "+1 (555) 123-4567",
-      href: "tel:+15551234567",
+      value: studio?.primaryPhone || "+1 (555) 123-4567",
+      href: `tel:${(studio?.primaryPhone || "+15551234567").replace(/[^\d+]/g, "")}`,
     },
     {
       label: tx("address"),
-      value: "Yolians Atelier, Via Milano 12, 20121 Milan",
+      value: studio?.atelierAddress || "Yolians Atelier, Via Milano 12, 20121 Milan",
     },
     {
       label: tx("hours"),
-      value: tx("mon.fri.10.00.18"),
+      value: studio?.businessHours || tx("mon.fri.10.00.18"),
     },
   ]
 

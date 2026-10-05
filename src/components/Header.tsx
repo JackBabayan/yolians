@@ -2,6 +2,7 @@ import { Bag, CaretDown, List, User, X } from "./icons"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
+import { useContent } from "../content"
 import { languages, type Lang, type MessageKey } from "../i18n"
 import { Logo } from "./Logo"
 import { useStore } from "../store"
@@ -9,11 +10,16 @@ import { useStore } from "../store"
 const catalogLinks: { to: string; label: MessageKey }[] = [
   { to: "/catalog?gender=women", label: "nav.women" },
   { to: "/catalog?gender=men", label: "nav.men" },
-  { to: "/catalog?kind=jackets", label: "nav.ready" },
-  { to: "/catalog?kind=sneakers", label: "nav.shoes" },
-  { to: "/catalog?kind=bags", label: "nav.bags" },
-  { to: "/catalog?kind=belts", label: "nav.accessories" },
+  { to: "/catalog?category=jackets", label: "nav.ready" },
+  { to: "/catalog?category=sneakers", label: "nav.shoes" },
+  { to: "/catalog?category=bags", label: "nav.bags" },
+  { to: "/catalog?category=belts", label: "nav.accessories" },
 ]
+
+function setTickerRate(node: HTMLDivElement, rate: number) {
+  const animation = node.querySelector(".ticker-track")?.getAnimations()[0]
+  if (animation) animation.playbackRate = rate
+}
 
 const pageLinks: { to: string; label: MessageKey }[] = [
   { to: "/tailoring", label: "nav.tailoring" },
@@ -66,15 +72,20 @@ export function Header() {
   }, [overlay])
 
   const ink = solid || open
-  const shipping = tx("free.shipping.on.all.orders")
+  const banner = useContent<{ runningTitle?: string; isEnabled?: boolean }>("/content/header")
+  const bannerCopy = banner?.[lang] ?? banner?.en
+  const shipping = bannerCopy?.runningTitle || tx("free.shipping.on.all.orders")
+  const showTicker = bannerCopy?.isEnabled !== false
 
   return (
     <>
     <div
       className={`fixed inset-x-0 top-0 z-40 h-6 overflow-hidden border-b border-line bg-white text-[10px] tracking-[0.12em] text-ink uppercase md:h-8 md:text-xs md:tracking-[0.16em] ${
-        atTop ? "" : "hidden"
+        atTop && showTicker ? "" : "hidden"
       }`}
       aria-label={shipping}
+      onMouseEnter={(event) => setTickerRate(event.currentTarget, 0.35)}
+      onMouseLeave={(event) => setTickerRate(event.currentTarget, 1)}
     >
       <div className="ticker-track flex h-full w-max" aria-hidden="true">
         {[0, 1].map((group) => (
@@ -93,14 +104,14 @@ export function Header() {
         ink ? "border-b border-line bg-white text-ink" : "bg-transparent text-white"
       }`}
     >
-      <div className="relative mx-auto grid h-full w-full max-w-[1400px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 md:px-8">
+      <div className="relative mx-auto flex h-full w-full max-w-[1400px] items-center justify-between px-4 md:px-8">
         <button
           aria-label={open ? tx("close.menu") : tx("open.menu")}
           onClick={() => setOpen((value) => !value)}
         >
           {open ? <X size={22} className="size-[18px] md:size-[22px]" /> : <List size={22} className="size-[18px] md:size-[22px]" />}
         </button>
-        <Link to="/" aria-label="Yolians" className="justify-self-center">
+        <Link to="/" aria-label="Yolians" className="absolute left-1/2 -translate-x-1/2">
           <Logo className="h-auto w-[5.25rem] max-w-full md:w-[150px]" />
         </Link>
         <div className="flex items-center gap-2.5 text-sm md:gap-4 md:text-xl">

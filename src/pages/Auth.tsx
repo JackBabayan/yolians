@@ -1,6 +1,7 @@
 import { type FormEvent, type ReactNode, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { TextField } from "../components/form"
+import { Loader } from "../components/Loader"
 import { useStore } from "../store"
 
 export function Login() {
@@ -9,10 +10,13 @@ export function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [busy, setBusy] = useState(false)
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault()
-    const message = login(email, password)
+    setBusy(true)
+    const message = await login(email, password)
+    setBusy(false)
     if (message) {
       setError(message)
       return
@@ -26,7 +30,8 @@ export function Login() {
         <TextField label="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
         <TextField label={tx("password")} type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
         {error ? <p className="text-xl text-[#8f2d2d]">{error}</p> : null}
-        <button type="submit" className="btn w-full">
+        {busy ? <Loader label={tx("loading")} /> : null}
+        <button type="submit" className="btn w-full" disabled={busy}>
           {tx("sign.in")}
         </button>
         <Link to="/register" className="text-xl text-accent">
@@ -42,14 +47,16 @@ export function Register() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "" })
   const [error, setError] = useState("")
+  const [busy, setBusy] = useState(false)
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault()
     if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim() || form.password.length < 4) {
       setError(tx("first.name.last.name.email"))
       return
     }
-    const message = register({
+    setBusy(true)
+    const message = await register({
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email,
@@ -58,6 +65,7 @@ export function Register() {
       addresses: [],
       cards: [],
     })
+    setBusy(false)
     if (message) {
       setError(message)
       return
@@ -73,7 +81,8 @@ export function Register() {
         <TextField label="Email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
         <TextField label={tx("password")} type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
         {error ? <p className="text-xl text-[#8f2d2d]">{error}</p> : null}
-        <button type="submit" className="btn w-full">
+        {busy ? <Loader label={tx("loading")} /> : null}
+        <button type="submit" className="btn w-full" disabled={busy}>
           {tx("create.account")}
         </button>
         <Link to="/login" className="text-xl text-muted">

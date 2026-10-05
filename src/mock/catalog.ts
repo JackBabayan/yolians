@@ -1,17 +1,24 @@
 import { phrase, type Phrase } from "../i18n"
-import type { ColorId, Gender, Kind, Product } from "../data"
+import type { ColorId, Gender, Kind, Product, ProductColor } from "../data"
+
+const palette: Record<ColorId, ProductColor> = {
+  black: { id: "black", name: phrase({ ru: "Чёрный", en: "Black" }), hex: "#14181c" },
+  cognac: { id: "cognac", name: phrase({ ru: "Коньяк", en: "Cognac" }), hex: "#8a4b2f" },
+  white: { id: "white", name: phrase({ ru: "Белый", en: "White" }), hex: "#ffffff" },
+  emerald: { id: "emerald", name: phrase({ ru: "Изумруд", en: "Emerald" }), hex: "#0c6b56" },
+}
 
 // Fixture catalog. Delete this file when products come from the backend.
-const catalog: Product[] = [
+const catalog: Omit<Product, "inStock">[] = [
   {
     id: "atlas",
     name: phrase({ ru: "Куртка Atlas", en: "Atlas jacket" }),
     price: 420,
     shipping: 0,
     gender: "men",
-    kind: "jackets",
+    category: "jackets",
     material: "leather",
-    color: "black",
+    color: palette.black,
     sizes: ["S", "M", "L", "XL"],
     stock: { S: 2, M: 4, L: 2, XL: 1 },
     image: "/media/prod-jacket-black.jpg",
@@ -23,9 +30,9 @@ const catalog: Product[] = [
     price: 390,
     shipping: 0,
     gender: "women",
-    kind: "jackets",
+    category: "jackets",
     material: "leather",
-    color: "cognac",
+    color: palette.cognac,
     sizes: ["XS", "S", "M", "L"],
     stock: { XS: 1, S: 3, M: 2, L: 1 },
     image: "/media/prod-jacket-cognac.jpg",
@@ -37,9 +44,9 @@ const catalog: Product[] = [
     price: 180,
     shipping: 0,
     gender: "men",
-    kind: "sneakers",
+    category: "sneakers",
     material: "leather",
-    color: "white",
+    color: palette.white,
     sizes: ["40", "41", "42", "43", "44"],
     stock: { "40": 2, "41": 3, "42": 4, "43": 2, "44": 1 },
     image: "/media/prod-sneakers-white.jpg",
@@ -51,9 +58,9 @@ const catalog: Product[] = [
     price: 190,
     shipping: 0,
     gender: "women",
-    kind: "sneakers",
+    category: "sneakers",
     material: "leather",
-    color: "black",
+    color: palette.black,
     sizes: ["36", "37", "38", "39", "40"],
     stock: { "36": 0, "37": 0, "38": 0, "39": 0, "40": 0 },
     image: "/media/prod-sneakers-black.jpg",
@@ -65,9 +72,9 @@ const catalog: Product[] = [
     price: 260,
     shipping: 0,
     gender: "men",
-    kind: "bags",
+    category: "bags",
     material: "leather",
-    color: "black",
+    color: palette.black,
     sizes: ["One"],
     stock: { One: 5 },
     image: "/media/prod-bag-black.jpg",
@@ -79,9 +86,9 @@ const catalog: Product[] = [
     price: 240,
     shipping: 0,
     gender: "women",
-    kind: "bags",
+    category: "bags",
     material: "leather",
-    color: "emerald",
+    color: palette.emerald,
     sizes: ["One"],
     stock: { One: 3 },
     image: "/media/prod-bag-emerald.jpg",
@@ -93,9 +100,9 @@ const catalog: Product[] = [
     price: 90,
     shipping: 0,
     gender: "men",
-    kind: "belts",
+    category: "belts",
     material: "leather",
-    color: "black",
+    color: palette.black,
     sizes: ["80", "85", "90", "95", "100"],
     stock: { "80": 2, "85": 4, "90": 4, "95": 2, "100": 1 },
     image: "/media/prod-belt.jpg",
@@ -155,7 +162,7 @@ type Draft = [
   qty: number[],
 ]
 
-function toProduct(draft: Draft): Product {
+function toProduct(draft: Draft): Omit<Product, "inStock"> {
   const [id, ru, en, price, gender, kind, color, image, sizes, qty] = draft
   return {
     id,
@@ -163,9 +170,9 @@ function toProduct(draft: Draft): Product {
     price,
     shipping: 0,
     gender,
-    kind,
+    category: kind,
     material: "leather",
-    color,
+    color: palette[color],
     sizes,
     stock: Object.fromEntries(sizes.map((size, index) => [size, qty[index] ?? 0])),
     image,
@@ -186,6 +193,7 @@ const extraViews: Record<string, string[]> = {
 export const products: Product[] = [...catalog, ...more.map(toProduct)].map((product) => ({
   ...product,
   images: extraViews[product.image],
+  inStock: Object.values(product.stock).some((qty) => qty > 0),
 }))
 
 export const kinds: { id: Kind; image: string }[] = [
