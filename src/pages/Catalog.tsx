@@ -212,7 +212,7 @@ export function Catalog() {
     gendersSelected.length + materialsSelected.length + colorsSelected.length + sizesSelected.length + (onlyStock ? 1 : 0)
 
   return (
-    <div className={`mx-auto w-full max-w-[1400px] min-h-[80vh] px-4 py-8 md:px-8 md:py-12 ${revealed ? "" : "flex flex-col"}`}>
+    <div className={`mx-auto w-full max-w-[1400px] min-h-[80vh] px-4  md:px-8 ${revealed ? "" : "flex flex-col"}`}>
       <div className="flex items-end justify-between gap-4">
         <div>
           <SwapTitle text={selected ? selected.name[lang] : tx("catalog")} />
@@ -265,7 +265,7 @@ export function Catalog() {
       </div>
       ) : null}
       {revealed ? null : (
-        <div className="grid flex-1 place-items-center">
+        <div className="grid flex-1 place-items-center py-16">
           <Loader label={tx("loading")} />
         </div>
       )}
@@ -281,12 +281,12 @@ export function Catalog() {
       ) : null}
       {visible.length > 0 ? (
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
-          {visible.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {visible.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
       ) : null}
-      {pending && visible.length > 0 ? <Loader label={tx("loading")} className="py-10" /> : null}
+      {pending && visible.length > 0 ? <Loader label={tx("loading")} className="py-40" /> : null}
       <div ref={sentinel} className="h-8" />
 
       {createPortal(

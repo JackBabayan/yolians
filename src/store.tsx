@@ -80,6 +80,10 @@ type Store = State & {
   removeLine: (productId: string, size: string) => void
   register: (user: User) => Promise<string | null>
   login: (email: string, password: string) => Promise<string | null>
+  requestPasswordReset: (email: string) => Promise<string | null>
+  resetPassword: (token: string, password: string) => Promise<string | null>
+  verifyEmail: (token: string) => Promise<string | null>
+  resendVerification: (email: string) => Promise<string | null>
   updateProfile: (profile: { firstName: string; lastName: string; email: string; phone: string }) => Promise<string | null>
   logout: () => void
   placeOrder: (lines: CartLine[], ship: ShipAddress) => Promise<string | null>
@@ -292,6 +296,14 @@ const empty: State = {
 }
 
 const StoreContext = createContext<Store | null>(null)
+const emailVerifications = new Map<string, Promise<string | null>>()
+
+function authMessage(error: unknown, invalid: string, failed: string) {
+  if (error instanceof ApiError && error.status === 400) return invalid
+  if (error instanceof ApiError && error.status >= 500) return failed
+  if (error instanceof Error && /failed query|select |insert |update /i.test(error.message)) return failed
+  return error instanceof Error && error.message ? error.message : failed
+}
 
 function readState(): State {
   try {
@@ -435,6 +447,65 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           if (error instanceof ApiError && error.status === 401) return tx("wrong.email.or.password")
           return error instanceof Error ? error.message : tx("wrong.email.or.password")
+        }
+      },
+      requestPasswordReset: async (email) => {
+        const value = email.trim().toLowerCase()
+        if (!value) return tx("enter.email")
+        try {
+          await api("/auth/forgot-password", {
+            method: "POST",
+            auth: false,
+            body: { email: value },
+          })
+          return null
+        } catch (error) {
+          return authMessage(error, tx("could.not.send.email"), tx("could.not.send.email"))
+        }
+      },
+      resetPassword: async (token, password) => {
+        if (!token) return tx("reset.link.invalid")
+        if (password.length < 8) return tx("password.min.eight")
+        try {
+          await api("/auth/reset-password", {
+            method: "POST",
+            auth: false,
+            body: { token, password },
+          })
+          return null
+        } catch (error) {
+          return authMessage(error, tx("reset.link.invalid"), tx("could.not.complete"))
+        }
+      },
+      verifyEmail: (token) => {
+        if (!token) return Promise.resolve(tx("verify.link.invalid"))
+        const pending = emailVerifications.get(token)
+        if (pending) return pending
+        const request = api("/auth/verify-email", {
+          method: "POST",
+          auth: false,
+          body: { token },
+        })
+          .then(() => null)
+          .catch((error: unknown) => {
+            emailVerifications.delete(token)
+            return authMessage(error, tx("verify.link.invalid"), tx("could.not.complete"))
+          })
+        emailVerifications.set(token, request)
+        return request
+      },
+      resendVerification: async (email) => {
+        const value = email.trim().toLowerCase()
+        if (!value) return tx("enter.email")
+        try {
+          await api("/auth/resend-verification", {
+            method: "POST",
+            auth: false,
+            body: { email: value },
+          })
+          return null
+        } catch (error) {
+          return authMessage(error, tx("could.not.send.email"), tx("could.not.send.email"))
         }
       },
       updateProfile: async (profile) => {

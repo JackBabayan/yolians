@@ -38,7 +38,7 @@ export function Home() {
       <Hero slides={heroSlides}>
         {(dots) => (
           <>
-            <h1 className="max-w-[11ch] text-4xl leading-[1.05] font-medium tracking-tighter md:text-6xl">
+            <h1 className="mt-5 text-5xl leading-[0.95] font-medium tracking-tight md:text-7xl">
               {hero?.headline || (
                 <>
                   {tx("leather")}
@@ -89,8 +89,8 @@ export function Home() {
           </FilterTab>
         </div>
         <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
-          {visible.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {visible.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
         <div className="mt-12 flex justify-center">
@@ -119,7 +119,7 @@ export function Home() {
             <h2 className="mt-5 text-5xl leading-[0.95] font-medium tracking-tight md:text-7xl">
               {tx("if.the.size.is.gone")}
             </h2>
-            <p className="mt-4 max-w-[36ch] text-xl leading-relaxed text-muted">
+            <p className="mt-4 max-w-[36ch] text-xl text-muted">
               {tx("we.will.make.the.piece")}
             </p>
             <Link to="/tailoring" className="btn mt-6">
@@ -136,7 +136,7 @@ export function Home() {
             {tx("subscribe")}
             <span className="mt-1 block">{tx("to.our.newsletter")}</span>
           </h2>
-          <p className="mt-6 max-w-[34ch] text-xl leading-relaxed text-muted">
+          <p className="mt-6 max-w-[34ch] text-xl text-muted">
             {tx("new.pieces.and.tailoring.dates")}
           </p>
           {subscribed ? (
@@ -144,7 +144,7 @@ export function Home() {
           ) : (
             <form
               onSubmit={subscribe}
-              className="mt-12 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-center sm:rounded-full sm:border sm:border-line sm:p-1.5"
+              className="mt-12 flex w-full max-w-xl flex-col gap-3 sm:flex-row sm:items-center sm:border sm:border-line sm:p-1.5"
             >
               <label className="sr-only" htmlFor="newsletter-email">
                 Email

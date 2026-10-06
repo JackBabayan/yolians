@@ -31,14 +31,21 @@ export async function api<T>(
     headers,
     body: options?.body === undefined ? undefined : JSON.stringify(options.body),
   })
-  const data = (await response.json().catch(() => ({}))) as { error?: unknown; message?: unknown }
+  const data = (await response.json().catch(() => ({}))) as {
+    error?: unknown
+    message?: unknown
+    errors?: { message?: unknown }[]
+  }
   if (!response.ok) {
+    const nested = data.errors?.find((item) => typeof item.message === "string")?.message
     const message =
       typeof data.error === "string"
         ? data.error
         : typeof data.message === "string"
           ? data.message
-          : response.statusText
+          : typeof nested === "string"
+            ? nested
+            : response.statusText
     throw new ApiError(response.status, message)
   }
   return data as T

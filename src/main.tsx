@@ -1,7 +1,6 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter } from "react-router-dom"
-import "@fontsource-variable/outfit"
 import "@fontsource-variable/eb-garamond/wght.css"
 import "@fontsource-variable/eb-garamond/wght-italic.css"
 import "./index.css"

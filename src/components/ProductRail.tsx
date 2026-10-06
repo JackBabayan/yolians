@@ -18,8 +18,8 @@ export function ProductRail({ title, products }: { title: string; products: Prod
         </Link>
       </div>
       <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+        {products.map((product, index) => (
+          <ProductCard key={product.id} product={product} index={index} />
         ))}
       </div>
     </section>

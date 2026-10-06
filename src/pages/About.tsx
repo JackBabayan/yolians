@@ -246,7 +246,7 @@ function Portrait({ slides }: { slides: { image: string; caption: string }[] }) 
         <button
           type="button"
           aria-label={previousFrame[lang]}
-          className="grid size-10 place-items-center rounded-full border border-accent text-accent hover:bg-accent/10"
+          className="grid size-10 place-items-center border border-accent text-accent hover:bg-accent/10"
           onClick={() => step(-1)}
         >
           <ArrowLeft size={16} />
@@ -254,7 +254,7 @@ function Portrait({ slides }: { slides: { image: string; caption: string }[] }) 
         <button
           type="button"
           aria-label={nextFrame[lang]}
-          className="grid size-10 place-items-center rounded-full border border-accent text-accent hover:bg-accent/10"
+          className="grid size-10 place-items-center border border-accent text-accent hover:bg-accent/10"
           onClick={() => step(1)}
         >
           <ArrowRight size={16} />
@@ -267,7 +267,7 @@ function Portrait({ slides }: { slides: { image: string; caption: string }[] }) 
               aria-label={slideLabel(itemIndex + 1, lang)}
               aria-current={itemIndex === index ? "true" : undefined}
               onClick={() => setIndex(itemIndex)}
-              className={`h-1.5 rounded-full ${itemIndex === index ? "w-8 bg-accent" : "w-1.5 bg-accent/30"}`}
+              className={`h-1.5 ${itemIndex === index ? "w-8 bg-accent" : "w-1.5 bg-accent/30"}`}
             />
           ))}
         </div>
@@ -339,7 +339,7 @@ function Story({ chapters: slides }: { chapters: { image: string; title: string;
               <button
                 type="button"
                 aria-label={previousLabel[lang]}
-                className="grid size-12 place-items-center rounded-full border border-accent text-accent hover:bg-white"
+                className="grid size-12 place-items-center border border-accent text-accent hover:bg-white"
                 onClick={() => step(-1)}
               >
                 <ArrowLeft size={16} />
@@ -347,7 +347,7 @@ function Story({ chapters: slides }: { chapters: { image: string; title: string;
               <button
                 type="button"
                 aria-label={nextLabel[lang]}
-                className="grid size-12 place-items-center rounded-full border border-accent text-accent hover:bg-white"
+                className="grid size-12 place-items-center border border-accent text-accent hover:bg-white"
                 onClick={() => step(1)}
               >
                 <ArrowRight size={16} />
@@ -360,7 +360,7 @@ function Story({ chapters: slides }: { chapters: { image: string; title: string;
                     aria-label={slideLabel(itemIndex + 1, lang)}
                     aria-current={itemIndex === index ? "true" : undefined}
                     onClick={() => setIndex(itemIndex)}
-                    className={`h-1.5 rounded-full ${itemIndex === index ? "w-8 bg-accent" : "w-1.5 bg-accent/30"}`}
+                    className={`h-1.5 ${itemIndex === index ? "w-8 bg-accent" : "w-1.5 bg-accent/30"}`}
                   />
                 ))}
               </div>

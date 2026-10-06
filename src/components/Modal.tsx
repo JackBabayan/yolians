@@ -42,7 +42,7 @@ export function Modal({
         role="dialog"
         aria-modal="true"
         aria-labelledby={labelledBy}
-        className="relative m-auto w-full max-w-4xl rounded-3xl bg-white px-4 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10"
+        className="relative m-auto w-full max-w-4xl bg-white px-4 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10"
         initial={reduce ? false : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         exit={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}

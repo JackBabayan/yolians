@@ -2,7 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { Layout } from "./components/Layout"
 import { About } from "./pages/About"
 import { Account } from "./pages/Account"
-import { Login, Register } from "./pages/Auth"
+import { ForgotPassword, Login, Register, ResetPassword, VerifyEmail } from "./pages/Auth"
 import { Cart } from "./pages/Cart"
 import { Catalog } from "./pages/Catalog"
 import { Contact } from "./pages/Contact"
@@ -24,6 +24,11 @@ export default function App() {
         <Route path="/payment" element={<Navigate to="/cart" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/account" element={<Account />} />
         <Route path="/tailoring" element={<Tailoring />} />
         <Route path="/about" element={<About />} />

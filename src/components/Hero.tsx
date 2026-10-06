@@ -67,7 +67,7 @@ export function Hero({
           aria-label={slideLabel(slideIndex + 1, lang)}
           aria-current={slideIndex === index ? "true" : undefined}
           onClick={() => setIndex(slideIndex)}
-          className={`h-1.5 rounded-full ${slideIndex === index ? "w-8 bg-white" : "w-1.5 bg-white/45"}`}
+          className={`h-1.5 ${slideIndex === index ? "w-8 bg-white" : "w-1.5 bg-white/45"}`}
         />
       ))}
     </div>

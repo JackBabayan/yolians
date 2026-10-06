@@ -53,7 +53,7 @@ export function Cart() {
       <div className="flex items-center gap-3 text-xl">
         <button
           type="button"
-          className="grid h-9 w-9 place-items-center rounded-full shadow-[inset_0_0_0_1px_var(--color-line)]"
+          className="grid h-9 w-9 place-items-center shadow-[inset_0_0_0_1px_var(--color-line)]"
           onClick={() => setQty(line.productId, line.size, line.qty - 1)}
           aria-label={tx("less")}
         >
@@ -62,7 +62,7 @@ export function Cart() {
         <span>{line.qty}</span>
         <button
           type="button"
-          className="grid h-9 w-9 place-items-center rounded-full shadow-[inset_0_0_0_1px_var(--color-line)] disabled:text-muted"
+          className="grid h-9 w-9 place-items-center shadow-[inset_0_0_0_1px_var(--color-line)] disabled:text-muted"
           disabled={line.qty >= max}
           onClick={() => setQty(line.productId, line.size, line.qty + 1)}
           aria-label={tx("more")}

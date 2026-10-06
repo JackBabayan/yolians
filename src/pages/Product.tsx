@@ -83,7 +83,7 @@ export function Product() {
   const photos = [product.image, ...(product.images ?? []).filter((src) => src !== product.image)]
 
   return (
-    <div className="mx-auto w-full max-w-[1400px] px-4 py-8 md:px-8 md:py-12">
+    <div className="mx-auto w-full max-w-[1400px] px-4  md:px-8 ">
       <Link to="/catalog" className="mb-8 inline-flex items-center gap-2 text-xl text-muted hover:text-ink">
         <ArrowLeft size={18} />
         {tx("catalog")}
@@ -96,10 +96,11 @@ export function Product() {
           <p className="mt-1 text-sm text-muted">
             {tx("nav.shipping")} {formatShipping(product.shipping, lang).toLowerCase()}
           </p>
-          <p className="mt-4 max-w-[48ch] leading-relaxed text-muted">{product.note[lang]}</p>
+          <p className="mt-4 text-lg max-w-[48ch] text-muted">{product.note[lang]}</p>
 
-          <p className="mt-8 text-xl tracking-[0.14em] uppercase">{tx("select.size")}</p>
-          <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          <div className="buy">
+          <p className="mt-8 text-base">{tx("select.size")}</p>
+          <div className="sizes mt-3 flex flex-wrap gap-2">
             {product.sizes.map((item) => {
               const available = (product.stock[item] ?? 0) > 0
               const active = size === item
@@ -120,7 +121,7 @@ export function Product() {
           </div>
           {error ? <p className="mt-3 text-xl text-[#8f2d2d]">{error}</p> : null}
 
-          <p className="mt-8 text-xl tracking-[0.14em] uppercase">{tx("colour")}</p>
+          <p className="mt-6 text-base">{tx("colour")}</p>
           <div className="mt-3 flex flex-wrap gap-4">
             {siblings.map((item) => {
               const label = item.color.name[lang]
@@ -143,29 +144,29 @@ export function Product() {
                       {dot}
                     </Link>
                   )}
-                  <span className="text-xl text-muted">{label}</span>
+                  <span className="text-sm text-muted">{label}</span>
                 </div>
               )
             })}
           </div>
 
           {madeToOrder ? null : (
-            <div className="mt-8">
-              <p className="text-xl tracking-[0.14em] uppercase">{tx("quantity")}</p>
-              <div className="mt-3 inline-flex items-center border border-line">
+            <div className="mt-6">
+              <p className="text-base">{tx("quantity")}</p>
+              <div className="mt-3 inline-flex items-center border border-line text-sm">
                 <button
                   aria-label={tx("less")}
-                  className="grid h-12 w-12 place-items-center"
+                  className="grid h-9 w-9 place-items-center"
                   onClick={() =>
                     setPicked((current) => ({ ...current, qty: Math.max(1, current.qty - 1) }))
                   }
                 >
                   <Minus size={16} />
                 </button>
-                <span className="w-10 text-center tabular-nums">{qty}</span>
+                <span className="w-8 text-center tabular-nums">{qty}</span>
                 <button
                   aria-label={tx("more")}
-                  className="grid h-12 w-12 place-items-center"
+                  className="grid h-9 w-9 place-items-center"
                   onClick={() =>
                     setPicked((current) => ({
                       ...current,
@@ -178,6 +179,7 @@ export function Product() {
               </div>
             </div>
           )}
+          </div>
 
           {madeToOrder ? (
             <Link to={`/tailoring?product=${product.id}`} className="btn mt-8 w-full">
@@ -190,16 +192,10 @@ export function Product() {
           )}
 
           <div className="relative mt-6 overflow-hidden px-6 py-8">
-            <img
-              src={product.image}
-              alt=""
-              className="absolute inset-0 h-full w-full scale-110 object-cover blur-2xl"
-            />
-            <div className="absolute inset-0 bg-white/70" />
             <div className="absolute inset-0 bg-accent/25" />
             <div className="relative">
               <h2 className="text-3xl italic tracking-tight">{tx("looking.for.a.custom.fit")}</h2>
-              <p className="mt-3 max-w-[42ch] text-xl leading-relaxed text-muted">
+              <p className="mt-3 max-w-[42ch] text-lg leading-relaxed text-muted">
                 {tx("we.can.make.this.piece")}
               </p>
               <Link
@@ -215,7 +211,7 @@ export function Product() {
           <div className="mt-8 border-t border-line">
             <Fold title={tx("size.chart")}>
               <SizeChart kind={product.category} sizes={product.sizes} tx={tx} />
-              <Link to="/size-guide" className="mt-4 inline-flex text-xl text-accent">
+              <Link to="/size-guide" className="mt-4 inline-flex text-accent">
                 {tx("full.size.guide")}
               </Link>
             </Fold>
@@ -459,17 +455,34 @@ function SizeChart({
 
 function Fold({ title, children }: { title: string; children: ReactNode }) {
   const [open, setOpen] = useState(false)
+  const body = useRef<HTMLDivElement>(null)
+  const [height, setHeight] = useState(0)
+
+  useEffect(() => {
+    const node = body.current
+    if (!node) return
+    const update = () => setHeight(node.scrollHeight)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div className="border-b border-line">
       <button
-        className="flex w-full items-center justify-between gap-4 py-4 text-left text-xl tracking-[0.08em] uppercase"
+        className="flex w-full items-center justify-between gap-4 py-3 text-left text-base"
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
       >
         {title}
-        <CaretDown size={16} className={open ? "rotate-180" : ""} />
+        <CaretDown size={16} className={`fold-caret shrink-0 ${open ? "rotate-180" : ""}`} />
       </button>
-      {open ? <div className="pb-4 text-xl leading-relaxed text-muted">{children}</div> : null}
+      <div className="fold-panel" style={{ height: open ? height : 0 }} data-open={open ? "true" : undefined}>
+        <div ref={body} className="fold-body pb-4 text-sm leading-relaxed text-muted">
+          {children}
+        </div>
+      </div>
     </div>
   )
 }

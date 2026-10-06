@@ -2,12 +2,16 @@ import { Link } from "react-router-dom"
 import { formatShipping, inStock, money, type Product } from "../data"
 import { useStore } from "../store"
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const { lang, tx } = useStore()
   const available = inStock(product)
 
   return (
-    <Link to={`/product/${product.id}`} className="block">
+    <Link
+      to={`/product/${product.id}`}
+      className="product-card block"
+      style={{ animationDelay: `${(index % 8) * 55}ms` }}
+    >
       <div className="aspect-square bg-white">
         <img
           src={product.image}

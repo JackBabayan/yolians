@@ -122,7 +122,7 @@ export function Header() {
           <Link to="/cart" className="relative" aria-label={tx("cart")}>
             <Bag size={22} className="size-[18px] md:size-[22px]" />
             {count > 0 ? (
-              <span className="absolute -top-2 -right-2 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] text-white">
+              <span className="absolute -top-2 -right-2 grid h-5 min-w-5 place-items-center bg-accent px-1 text-[11px] text-white rounded-full">
                 {count}
               </span>
             ) : null}

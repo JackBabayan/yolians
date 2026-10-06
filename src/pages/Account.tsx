@@ -10,7 +10,7 @@ import { countries, countriesBy, money, productById, useProducts, type Lang } fr
 import { bagLine } from "../i18n"
 import { useStore, type SavedAddress, type SavedCard } from "../store"
 
-const pillLine = "inline-flex rounded-full border border-ink px-4 py-1.5 text-sm hover:bg-[#f4f6f6]"
+const pillLine = "inline-flex border border-ink px-4 py-1.5 text-sm hover:bg-[#f4f6f6]"
 
 const cardBrands = [
   ["mir", "MIR"],
@@ -353,7 +353,7 @@ function PaymentDialog({ onClose }: { onClose: () => void }) {
                 key={id}
                 type="button"
                 aria-label={label}
-                className={`grid h-14 w-full place-items-center rounded-full bg-white data-[active=true]:shadow-[inset_0_0_0_2px_var(--color-accent)] ${errors.brand ? "shadow-[inset_0_0_0_1px_#8f2d2d]" : "shadow-[inset_0_0_0_1px_var(--color-line)]"}`}
+                className={`grid h-14 w-full place-items-center bg-white data-[active=true]:shadow-[inset_0_0_0_2px_var(--color-accent)] ${errors.brand ? "shadow-[inset_0_0_0_1px_#8f2d2d]" : "shadow-[inset_0_0_0_1px_var(--color-line)]"}`}
                 data-active={form.brand === id ? "true" : undefined}
                 aria-pressed={form.brand === id}
                 aria-invalid={errors.brand ? true : undefined}

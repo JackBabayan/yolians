@@ -53,7 +53,7 @@ export function TextAreaField({
 }: FieldProps & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "className">) {
   return (
     <Field label={label} error={error}>
-      <textarea className="control h-36 rounded-3xl py-4" rows={4} {...props} aria-invalid={error ? true : undefined} />
+      <textarea className="control h-36 py-4" rows={4} {...props} aria-invalid={error ? true : undefined} />
     </Field>
   )
 }
