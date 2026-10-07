@@ -1,6 +1,6 @@
 import { FacebookLogo, InstagramLogo, TelegramLogo, YoutubeLogo } from "../components/icons"
 import { type FormEvent, useEffect, useState } from "react"
-import { Link, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { api } from "../api"
 import { Hero, type HeroSlide } from "../components/Hero"
 import { TextAreaField, TextField } from "../components/form"

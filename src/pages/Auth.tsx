@@ -48,7 +48,7 @@ export function Login() {
 export function Register() {
   const { tx, register } = useStore()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "" })
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", confirm: "" })
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
 
@@ -56,6 +56,10 @@ export function Register() {
     event.preventDefault()
     if (!form.firstName.trim() || !form.lastName.trim() || !form.email.trim() || form.password.length < 4) {
       setError(tx("first.name.last.name.email"))
+      return
+    }
+    if (form.password !== form.confirm) {
+      setError(tx("passwords.do.not.match"))
       return
     }
     setBusy(true)
@@ -82,7 +86,8 @@ export function Register() {
         <TextField label={tx("first.name")} value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} />
         <TextField label={tx("last.name")} value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} />
         <TextField label="Email" type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} />
-        <TextField label={tx("password")} type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+        <TextField label={tx("password")} type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
+        <TextField label={tx("confirm.password")} type="password" autoComplete="new-password" value={form.confirm} onChange={(event) => setForm({ ...form, confirm: event.target.value })} />
         {error ? <p className="text-xl text-[#8f2d2d]">{error}</p> : null}
         {busy ? <Loader label={tx("loading")} /> : null}
         <button type="submit" className="btn w-full" disabled={busy}>

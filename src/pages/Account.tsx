@@ -1,6 +1,6 @@
 import { type FormEvent, type ReactNode, useState } from "react"
 import { AnimatePresence } from "motion/react"
-import { Link } from "react-router-dom"
+import { Link, Navigate } from "react-router-dom"
 import { SelectField, TextField } from "../components/form"
 import { Loader } from "../components/Loader"
 import { CardLogo } from "../components/icons"
@@ -50,6 +50,8 @@ export function Account() {
   const products = useProducts()
   const count = cart.reduce((sum, line) => sum + line.qty, 0)
   const picks = products.slice(0, 4)
+
+  if (!user) return <Navigate to="/login" replace />
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 py-10 md:px-8 md:py-14">

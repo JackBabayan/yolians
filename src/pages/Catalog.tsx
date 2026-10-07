@@ -1,6 +1,6 @@
 import { Funnel, X } from "../components/icons"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type CSSProperties } from "react"
 import { createPortal } from "react-dom"
 import { useSearchParams } from "react-router-dom"
 import { fetchCatalog, useFilters, type FilterCategory, type FilterOption } from "../catalog"
@@ -251,7 +251,7 @@ export function Catalog() {
                 >
                   <span
                     className="kind-icon"
-                    style={{ "--kind": `url("${item.image || drawings[item.id]}")` }}
+                    style={{ "--kind": `url("${item.image || drawings[item.id]}")` } as CSSProperties}
                   />
                   <span className="text-[11px] tracking-[0.16em] uppercase">{item.name[lang]}</span>
                 </button>
