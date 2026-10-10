@@ -56,8 +56,8 @@ export function Preloader({ onDone }: { onDone: () => void }) {
   return (
     <div id="preloader" className={leaving ? "preloader preloader-out" : "preloader"} aria-hidden="true">
       <div>
-        <p>Yolians</p>
-        <Loader className="mt-5" />
+        <p className="text-2xl font-bold text-center" >Yolians</p>
+        <Loader className="mt-5" label="Loading..."/>
       </div>
     </div>
   )
