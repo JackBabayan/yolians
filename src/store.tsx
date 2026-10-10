@@ -43,11 +43,21 @@ export type User = {
   cards: SavedCard[]
 }
 
+export type OrderTracking = {
+  provider?: string
+  trackingCode?: string
+  trackingUrl?: string | null
+  estimatedDelivery?: string | null
+  shippedAt?: string | null
+}
+
 export type Order = {
   id: string
   createdAt: string
   items: CartLine[]
   total: number
+  status?: string
+  tracking?: OrderTracking | null
 }
 
 type State = {
@@ -264,11 +274,18 @@ function accountOrders(value: unknown): Order[] {
           return [{ productId, size, qty }]
         })
       : []
+    const tracking = order.tracking && typeof order.tracking === "object"
+      ? (order.tracking as OrderTracking)
+      : null
+    const status = typeof order.status === "string" ? order.status : undefined
+
     return [{
       id: String(id),
       createdAt: text(order.createdAt) || text(order.created_at) || new Date().toISOString(),
       items,
       total: typeof order.total === "number" ? order.total : 0,
+      status,
+      tracking,
     }]
   })
 }

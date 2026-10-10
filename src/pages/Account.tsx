@@ -117,6 +117,30 @@ export function Account() {
                         {product.name[lang]} ({item.qty})
                       </p>
                     ))}
+                    {order.tracking ? (
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="bg-ink text-white px-2 py-0.5 uppercase tracking-wider text-[10px]">
+                          {order.status === "delivered" ? (lang === "ru" ? "Доставлен" : "Delivered") : (lang === "ru" ? "В пути" : "In transit")}
+                        </span>
+                        <span className="text-muted">{order.tracking.provider}:</span>
+                        {order.tracking.trackingUrl ? (
+                          <a
+                            href={order.tracking.trackingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-mono text-accent underline hover:opacity-80"
+                          >
+                            {order.tracking.trackingCode}
+                          </a>
+                        ) : (
+                          <span className="font-mono">{order.tracking.trackingCode}</span>
+                        )}
+                      </div>
+                    ) : order.status ? (
+                      <p className="mt-1 text-xs text-muted">
+                        {lang === "ru" ? "Статус:" : "Status:"} {order.status === "pendingPayment" ? (lang === "ru" ? "Ожидает оплаты" : "Pending payment") : order.status}
+                      </p>
+                    ) : null}
                   </div>
                   <p className="shrink-0 text-sm">{money(order.total)}</p>
                 </li>
