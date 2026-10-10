@@ -97,7 +97,7 @@ function toProduct(item: ApiProduct): Product | null {
     stock,
     inStock: item.in_stock ?? Object.values(stock).some((qty) => qty > 0),
     image: item.image,
-    images: known?.image === item.image ? known.images : item.images,
+    images: Array.isArray(item.images) && item.images.length > 0 ? item.images : known?.images,
     note: text(item.note, known?.note),
   }
 }

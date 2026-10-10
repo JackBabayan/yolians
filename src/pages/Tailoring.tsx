@@ -71,6 +71,8 @@ const messengers = [
 type TailoringCopy = {
   heroHeadline?: string
   heroSubheadline?: string
+  heroMediaUrl?: string
+  heroSlides?: HeroSlide[]
   journeySteps?: { stepNumber: string; title: string; body: string }[]
   contactMethods?: { value: string; href: string; label: string; action: string }[]
 }
@@ -141,7 +143,7 @@ export function Tailoring() {
   return (
     <div>
       <Hero
-        slides={heroSlides}
+        slides={page?.heroSlides || heroSlides}
         align="center"
         scrim="bg-gradient-to-b from-black/55 via-black/40 to-black/60"
       >

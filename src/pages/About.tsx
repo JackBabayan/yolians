@@ -117,6 +117,7 @@ export function About() {
     storyText?: string
     craftsmanshipSteps?: { title: string; image: string; body: string }[]
     editorialGallery?: { image: string; caption: string }[]
+    frames?: { src: string; caption: string }[]
   }>("/content/about")
   const copy = about?.[lang] ?? about?.en
   const story = copy?.craftsmanshipSteps?.length
@@ -125,6 +126,9 @@ export function About() {
   const gallery = copy?.editorialGallery?.length
     ? copy.editorialGallery
     : portraits.map((item) => ({ image: item.image, caption: item.caption[lang] }))
+  const frameList = copy?.frames?.length
+    ? copy.frames.map((item) => ({ src: item.src, caption: item.caption }))
+    : frames.map((item) => ({ src: item.src, caption: item.caption[lang] }))
 
   return (
     <div className="mx-auto w-full max-w-[1400px] px-4 md:px-8">
@@ -144,7 +148,7 @@ export function About() {
       <section className="mt-16 md:mt-24" aria-label={detailsLabel[lang]}>
         <h2 className="text-3xl tracking-tight md:text-4xl">{detailsLabel[lang]}</h2>
         <ul className="mt-6 flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
-          {frames.map((frame) => (
+          {frameList.map((frame) => (
             <Frame key={frame.src} frame={frame} />
           ))}
         </ul>
@@ -276,8 +280,9 @@ function Portrait({ slides }: { slides: { image: string; caption: string }[] }) 
   )
 }
 
-function Frame({ frame }: { frame: (typeof frames)[number] }) {
+function Frame({ frame }: { frame: { src: string; caption: string | (typeof frames)[number]["caption"] } }) {
   const { lang } = useStore()
+  const caption = typeof frame.caption === "string" ? frame.caption : frame.caption[lang]
   return (
     <li className="w-[74%] shrink-0 snap-start sm:w-[46%] lg:w-[28%]">
       <Reveal>
@@ -285,11 +290,11 @@ function Frame({ frame }: { frame: (typeof frames)[number] }) {
           <div className="overflow-hidden">
             <img
               src={frame.src}
-              alt={frame.caption[lang]}
+              alt={caption}
               className="aspect-[3/4] w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-[1.04] motion-reduce:transition-none motion-reduce:hover:scale-100"
             />
           </div>
-          <figcaption className="mt-3 text-sm text-muted">{frame.caption[lang]}</figcaption>
+          <figcaption className="mt-3 text-sm text-muted">{caption}</figcaption>
         </figure>
       </Reveal>
     </li>

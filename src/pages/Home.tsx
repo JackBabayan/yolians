@@ -18,9 +18,22 @@ export function Home() {
   const { tx, lang } = useStore()
   const products = useProducts()
   const home = useContent<{
-    hero?: { headline?: string; subheadline?: string; buttonText?: string; buttonLink?: string }
+    hero?: {
+      headline?: string
+      subheadline?: string
+      buttonText?: string
+      buttonLink?: string
+      slides?: HeroSlide[]
+      imageUrl?: string
+    }
+    brandStory?: {
+      title?: string
+      content?: string
+      imageUrl?: string
+    }
   }>("/content/home")
   const hero = home?.[lang]?.hero ?? home?.en?.hero
+  const craftImg = home?.[lang]?.brandStory?.imageUrl || home?.en?.brandStory?.imageUrl || "/media/leather-craft.jpg"
   const [gender, setGender] = useState<Gender | "all">("all")
   const [email, setEmail] = useState("")
   const [subscribed, setSubscribed] = useState(false)
@@ -35,7 +48,7 @@ export function Home() {
 
   return (
     <>
-      <Hero slides={heroSlides}>
+      <Hero slides={hero?.slides || heroSlides}>
         {(dots) => (
           <>
             <h1 className="mt-5 text-5xl leading-[0.95] font-medium tracking-tight md:text-7xl">
@@ -105,12 +118,12 @@ export function Home() {
         <div className="grid items-center md:grid-cols-[minmax(0,1.25fr)_minmax(280px,0.75fr)]">
           <div className="edge-fade relative">
             <img
-              src="/media/leather-craft.jpg"
+              src={craftImg}
               alt=""
               className="absolute inset-0 h-full w-full scale-110 object-cover blur-xl"
             />
             <img
-              src="/media/leather-craft.jpg"
+              src={craftImg}
               alt={tx("leather.being.cut.in.the")}
               className="relative aspect-[4/3] w-full object-cover md:aspect-auto md:h-[540px]"
             />
